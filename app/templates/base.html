@@ -1,0 +1,24 @@
+<!doctype html>
+
+<title>Breitbot</title>
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+<div class="page">
+
+  <div class="heading">
+    <h1>Breitbot</h1>
+    <h2>All the (fake) news you love to hate</h2>
+  </div>
+
+  <div class="navbar">
+    <ul>
+      <li><a href="{{ url_for('home') }}">HOME</a></li>
+      <li><a href="{{ url_for('about') }}">ABOUT</a></li>
+    </ul>
+  </div>
+
+  {% block body %}
+  {% endblock %}
+
+</div>

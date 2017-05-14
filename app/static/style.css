@@ -1,0 +1,78 @@
+/*
+ * Breitbot custom style sheet
+ * Franklin Chou 2017
+ */
+
+h1 {
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-size: 30px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 30px;
+}
+
+h2 {
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-size: 23px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 30px;
+}
+
+/* font for use w/article headlines? */
+h3 {
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-size: 17px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+div.heading {
+  padding: .2em 3em;
+}
+
+/* navbar links */
+div.navbar ul li {
+  display: inline;
+}
+
+div.navbar ul li a {
+  padding: .2em 1em;
+  text-decoration: none;
+  color: #000000;
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-size: 23px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 30px;
+}
+
+div.navbar ul li a:hover {
+  padding: .2em 1em;
+  text-decoration: none;
+  color: #42414E;
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-size: 23px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+div.about {
+  padding: .2em 17em;
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-size: 17px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 30px;
+}
+
+
+
