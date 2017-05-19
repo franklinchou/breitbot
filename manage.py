@@ -7,7 +7,7 @@ from flask_migrate import Migrate,\
 
 from app import app, db
 
-from app.horse import retrieve
+from app.jobs.horse import retrieve
 
 migrate = Migrate(app, db)
 manager = Manager(app)

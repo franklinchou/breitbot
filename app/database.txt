@@ -1,8 +1,0 @@
-# local database identifier:
-breitbot_dev
-
-# access database
-# from command line enter:
-psql breitbot_dev
-
-
