@@ -13,18 +13,17 @@
 __author__ = 'Franklin Chou'
 
 import os
+import re
 
 if __name__ != "__main__":
+    from app import db
     from app.config import raw_data_path
-    from app.models import Article
+    from app.models import Article as Article_Entry
 else:
     raw_data_path = os.path.join(os.path.dirname(__file__), 'test')
 
-# from datetime import datetime
-from datetime import date
-
-import re
-
+from datetime import date,\
+    datetime
 
 #------------------------------------------------------------------------------
 # html/xml parsing
@@ -45,17 +44,6 @@ import pdfkit
 
 base_url = 'http://www.breitbart.com'
 
-class PublishDate:
-    def __init__(self, raw_date):
-        self.year = re.search(r'^(\d{4})', raw_date).group(1)
-        self.month = re.search(r'(?<=/)(\d{2})(?=/)', raw_date).group(1)
-        self.day = re.search(r'(\d{2})$', raw_date).group(1)
-
-        self.date = "{}{}{}".format(self.year, self.month, self.day)
-
-    def __repr__(self):
-        return "{}-{}-{}".format(self.year, self.month, self.day)
-
 class Article:
     def __init__(self, raw_article_xml):
 
@@ -68,7 +56,14 @@ class Article:
         __raw_pub_date = re.search(r'(?<=/)(\d{4}/\d{2}/\d{2})', self.article_url)
 
         if __raw_pub_date is not None:
-            self.pub_date = PublishDate(__raw_pub_date.group(1))
+
+            # print(__raw_pub_date.group(1))
+
+            year = re.search(r'^(\d{4})', __raw_pub_date.group(1)).group(1)
+            month = re.search(r'(?<=/)(\d{2})(?=/)', __raw_pub_date.group(1)).group(1)
+            day = re.search(r'(\d{2})$', __raw_pub_date.group(1)).group(1)
+
+            self.pub_date = datetime.strptime(__raw_pub_date.group(1), "%Y/%m/%d")
         else:
             raise AttributeError("No publish date found, object not created.")
 
@@ -80,9 +75,9 @@ class Article:
 
         self.dest_path = os.path.join(
             raw_data_path,
-            self.pub_date.year,
-            self.pub_date.month,
-            self.pub_date.day
+            self.pub_date.strftime("%Y"),
+            self.pub_date.strftime("%m"),
+            self.pub_date.strftime("%d")
         )
 
         self.dest_file = os.path.join(self.dest_path, self.headline + ".pdf")
@@ -98,7 +93,7 @@ class Article:
 
             # shut the hell up
             'quiet': '',
-            'lowquality': '',
+            # 'lowquality': '',
         }
 
         try:
@@ -106,6 +101,10 @@ class Article:
             # generate path
             if not os.path.exists(self.dest_path):
                 os.makedirs(self.dest_path, exist_ok=True)
+
+            # does file already exist?
+            if os.path.isfile(self.dest_file):
+                raise FileExistsError
 
             pdfkit.from_url(
                 base_url + self.article_url,
@@ -116,10 +115,28 @@ class Article:
             print(e)
         except Exception as e:
             print(e)
+        except FileExistsError as e:
+            # The obvious error here is if the article is changed, the program
+            #   won't catch that. The solution is to use some sort of file hash.
+            #   Which is beyond the scope here.
+            print("File already exists; exiting with record unchanged.")
+            return
 
+    def db_push(self):
+        try:
+            article_metadata = Article_Entry(
+                raw_url = self.dest_file,
+                title = self.headline,
+                publish_date = self.pub_date.date()
+            )
+        except Exception as e:
+            print(e)
+        else:
+            db.session.add(article_metadata)
+            db.session.commit()
 
     def __repr__(self):
-        return "* %s, %s, %s" % (self.headline, self.pub_date, self.dest)
+        return "* %s, %s" % (self.headline, self.pub_date.date())
 
 def retrieve():
     source = lxml.html.parse(base_url)
@@ -135,9 +152,11 @@ def retrieve():
         # pass the LXML.HTML element object
         try:
             a = Article(a_raw)
-            a.extract()
-            if __name__ == '__main__':
+            if __name__ == "__main__":
                 print(a)
+                continue
+            a.extract()
+            a.db_push()
         except AttributeError:
             continue
 

@@ -21,7 +21,7 @@ class Retrieve(Command):
         retrieve()
 
 
-manager.add_command('test', Retrieve)
+manager.add_command('retrieve', Retrieve)
 
 if __name__ == '__main__':
     manager.run()

@@ -1,6 +1,8 @@
+# /breitbot/app/config.py
+
 import os
 
-basepath = os.path.dirname(__file__)
+basepath = os.path.dirname(os.path.dirname(__file__))
 raw_data_path = os.path.join(basepath, 'raw')
 
 if os.environ['ENV'].strip('\'') == 'dev':
