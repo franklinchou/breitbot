@@ -25,6 +25,8 @@ else:
 from datetime import date,\
     datetime
 
+from sqlalchemy.exc import IntegrityError
+
 #------------------------------------------------------------------------------
 # html/xml parsing
 #------------------------------------------------------------------------------
@@ -129,22 +131,25 @@ class Article:
 
     # push to database (duh)
     def db_push(self):
-        try:
+
+        article = db.session.query(Article_Entry).filter_by(title=self.headline).first()
+
+        if not article:
             article_metadata = Article_Entry(
                 raw_url = self.dest_file,
                 title = self.headline,
                 publish_date = self.pub_date.date()
             )
-        except Exception as e:
-            print(e)
-        else:
-            db.session.add(article_metadata)
-            db.session.commit()
+            try:
+                db.session.add(article_metadata)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
 
     def __repr__(self):
         return "* %s, %s" % (self.headline, self.pub_date.date())
 
-# Exposed function allow articles to be extracted from site 
+# Exposed function allow articles to be extracted from site
 #   and pushes article metadata into the database.
 @celery.task(name='horse.retrieve')
 def retrieve():
