@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 #
-# app/horse.py
+# app/jobs/horse.py
 #
 # This is where all the magic happens.
 #
@@ -35,12 +35,6 @@ from lxml import etree
 # pdf generation imports
 #------------------------------------------------------------------------------
 import pdfkit
-
-'''
-    1. initialize & get page articles
-    2. on interval: compare new page articles to existing page articles (collected from initialize)
-    3. find difference; convert to pdf
-'''
 
 base_url = 'http://www.breitbart.com'
 
@@ -82,6 +76,7 @@ class Article:
 
         self.dest_file = os.path.join(self.dest_path, self.headline + ".pdf")
 
+    # retrieve pdf & store to file
     def extract(self):
         doc_options = {
             'page-size': 'Letter',
@@ -122,6 +117,7 @@ class Article:
             print("File already exists; exiting with record unchanged.")
             return
 
+    # push to database (duh)
     def db_push(self):
         try:
             article_metadata = Article_Entry(
@@ -138,6 +134,8 @@ class Article:
     def __repr__(self):
         return "* %s, %s" % (self.headline, self.pub_date.date())
 
+# Exposed function allow articles to be extracted from site 
+#   and pushes article metadata into the database.
 def retrieve():
     source = lxml.html.parse(base_url)
 
@@ -148,10 +146,10 @@ def retrieve():
         "//div[@class='article-content']/h2[@class='title']/a"
     )
 
-    for a_raw in all_articles:
+    for raw_article_xml in all_articles:
         # pass the LXML.HTML element object
         try:
-            a = Article(a_raw)
+            a = Article(raw_article_xml)
             if __name__ == "__main__":
                 print(a)
                 continue
