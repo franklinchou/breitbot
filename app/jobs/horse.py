@@ -36,6 +36,14 @@ from lxml import etree
 #------------------------------------------------------------------------------
 import pdfkit
 
+#------------------------------------------------------------------------------
+# celery
+#------------------------------------------------------------------------------
+from celery import Celery
+celery = Celery(__name__, broker='redis://localhost:6379/0')
+celery.config_from_object('app.celery_config')
+#------------------------------------------------------------------------------
+
 base_url = 'http://www.breitbart.com'
 
 class Article:
@@ -101,6 +109,8 @@ class Article:
             if os.path.isfile(self.dest_file):
                 raise FileExistsError
 
+            # here is where UTF-8 compatibility __should__ be checked
+
             pdfkit.from_url(
                 base_url + self.article_url,
                 self.dest_file,
@@ -136,6 +146,7 @@ class Article:
 
 # Exposed function allow articles to be extracted from site 
 #   and pushes article metadata into the database.
+@celery.task(name='horse.retrieve')
 def retrieve():
     source = lxml.html.parse(base_url)
 

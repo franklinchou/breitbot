@@ -49,5 +49,10 @@ dep/
 # raw data files
 raw/
 
+# celery/redis (queueing files)
+var/celery/*
+var/redis/*
+celerybeat.pid
+
 # cloc
 cloc.sh
