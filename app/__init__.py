@@ -10,8 +10,6 @@ app = Flask(__name__)
 
 app.config.from_object(config)
 
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 db.init_app(app)
 
@@ -34,5 +32,6 @@ def __init__():
         os.makedirs(config.raw_data_path, exist_ok=True)
 
     # create initial articles listing
-    # retrieve()
+    retrieve()
 
+__init__()
