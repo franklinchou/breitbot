@@ -8,6 +8,7 @@ Flask==0.12
 Flask-Migrate==2.0.3
 Flask-Script==2.0.5
 Flask-SQLAlchemy==2.2
+gunicorn==19.7.1
 itsdangerous==0.24
 Jinja2==2.9.5
 kombu==4.0.2
