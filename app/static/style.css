@@ -74,5 +74,16 @@ div.about {
   line-height: 30px;
 }
 
+div.content {
+  padding: .2em 3em;
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-size: 17px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  line-height: 30px;
+}
 
-
+td#date {
+  padding: 0em .5em 0em 0em;
+}

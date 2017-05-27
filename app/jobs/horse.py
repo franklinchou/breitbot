@@ -14,13 +14,11 @@ __author__ = 'Franklin Chou'
 
 import os
 import re
+import timeout_decorator
 
-if __name__ != "__main__":
-    from app import db
-    from app.config import raw_data_path
-    from app.models import Article as Article_Entry
-else:
-    raw_data_path = os.path.join(os.path.dirname(__file__), 'test')
+from app import db
+from app.config import raw_data_path
+from app.models import Article as Article_Entry
 
 from datetime import date,\
     datetime
@@ -57,11 +55,10 @@ class Article:
         # If there isn't a published date?
         # Current fix: Simple exclusion; do not track article.
         self.article_url = raw_article_xml.get("href")
+
         __raw_pub_date = re.search(r'(?<=/)(\d{4}/\d{2}/\d{2})', self.article_url)
 
         if __raw_pub_date is not None:
-
-            # print(__raw_pub_date.group(1))
 
             year = re.search(r'^(\d{4})', __raw_pub_date.group(1)).group(1)
             month = re.search(r'(?<=/)(\d{2})(?=/)', __raw_pub_date.group(1)).group(1)
@@ -77,17 +74,13 @@ class Article:
         else:
             raise AttributeError("No publication headline found, object not created.")
 
-        self.dest_path = os.path.join(
-            raw_data_path,
-            self.pub_date.strftime("%Y"),
-            self.pub_date.strftime("%m"),
-            self.pub_date.strftime("%d")
-        )
-
-        self.dest_file = os.path.join(self.dest_path, self.headline + ".pdf")
+        self.dest_file = ""
+        self.dest_path = raw_data_path
 
     # retrieve pdf & store to file
+    @timeout_decorator.timeout(10)
     def extract(self):
+
         doc_options = {
             'page-size': 'Letter',
             'margin-top': '0.5in',
@@ -102,17 +95,7 @@ class Article:
         }
 
         try:
-
-            # generate path
-            if not os.path.exists(self.dest_path):
-                os.makedirs(self.dest_path, exist_ok=True)
-
-            # does file already exist?
-            if os.path.isfile(self.dest_file):
-                raise FileExistsError
-
             # here is where UTF-8 compatibility __should__ be checked
-
             pdfkit.from_url(
                 base_url + self.article_url,
                 self.dest_file,
@@ -122,29 +105,33 @@ class Article:
             print(e)
         except Exception as e:
             print(e)
-        except FileExistsError as e:
-            # The obvious error here is if the article is changed, the program
-            #   won't catch that. The solution is to use some sort of file hash.
-            #   Which is beyond the scope here.
-            print("File already exists; exiting with record unchanged.")
-            return
 
-    # push to database (duh)
-    def db_push(self):
+    # Returns true if the article already exists in the dbase, take no further action;
+    #   Else returns false, flag for extraction
+    def db_check_exist_and_push(self):
+        is_exist = db.session.query(Article_Entry).filter_by(headline=self.headline).first()
 
-        article = db.session.query(Article_Entry).filter_by(title=self.headline).first()
-
-        if not article:
-            article_metadata = Article_Entry(
-                raw_url = self.dest_file,
-                title = self.headline,
-                publish_date = self.pub_date.date()
-            )
+        # Add entry to database, retrieve ID, then use ID to name pdf
+        if not is_exist:
+            a = Article_Entry(
+                    headline = self.headline,
+                    publish_date = self.pub_date.date()
+                )
             try:
-                db.session.add(article_metadata)
+                db.session.add(a)
+
+                # once the entry is flushed to database, the ID should be available
+                db.session.flush()
+                self.dest_file = os.path.join(self.dest_path, "{}.pdf".format(a.id))
+                a.raw_url = self.dest_file
+
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
+            finally:
+                return False
+
+        return True
 
     def __repr__(self):
         return "* %s, %s" % (self.headline, self.pub_date.date())
@@ -155,7 +142,7 @@ class Article:
 def retrieve():
     source = lxml.html.parse(base_url)
 
-    docinfo = source.docinfo
+    # docinfo = source.docinfo
     # assert(docinfo.encoding == 'UTF-8')
 
     all_articles = source.xpath(
@@ -166,14 +153,12 @@ def retrieve():
         # pass the LXML.HTML element object
         try:
             a = Article(raw_article_xml)
-            if __name__ == "__main__":
-                print(a)
-                continue
-            a.extract()
-            a.db_push()
+            if not a.db_check_exist_and_push():
+                a.extract()
+        except TimeoutError:
+            continue
         except AttributeError:
             continue
 
 if __name__ == "__main__":
     retrieve()
-    # extract_all()

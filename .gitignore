@@ -22,7 +22,7 @@ lib/
 lib64/
 parts/
 sdist/
-var/
+# var/
 wheels/
 *.egg-info/
 .installed.cfg
@@ -32,6 +32,7 @@ wheels/
 instance/
 .webassets-cache
 migrations/*
+app/static/jquery-3.2.1.min.js
 
 # pyenv
 .python-version
@@ -47,7 +48,7 @@ venv/
 dep/
 
 # raw data files
-raw/
+app/static/raw/
 
 # celery/redis (queueing files)
 var/celery/*
