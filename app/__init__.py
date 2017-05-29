@@ -25,16 +25,6 @@ from app import views
 
 #------------------------------------------------------------------------------
 
-def __init__():
+retrieve(first_call=True)
 
-    # make necessary directories
-    if not os.path.exists(config.raw_data_path):
-        os.makedirs(config.raw_data_path, exist_ok=True)
-
-    # create initial articles listing
-    retrieve(first_call=True)
-
-    print(" * Initial retrieval complete, ready to serve requests")
-
-if os.environ.get('ENV').strip('\'') == 'prod':
-    __init__()
+print(" * Initial retrieval complete, ready to serve requests")

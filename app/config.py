@@ -3,7 +3,11 @@
 import os
 
 basepath = os.path.dirname(os.path.dirname(__file__))
+
 raw_data_path = os.path.join(basepath, 'raw')
+
+if not os.path.exists(raw_data_path):
+    os.makedirs(raw_data_path, exist_ok=True)
 
 if os.environ['ENV'].strip('\'') == 'dev':
     DEBUG = True
