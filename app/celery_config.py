@@ -2,7 +2,7 @@
 
 __author__ = 'Franklin Chou'
 
-from celery import chord
+# from celery import chord
 from celery.schedules import crontab
 
 timezone = 'UTC'
