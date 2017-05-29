@@ -14,14 +14,20 @@ __author__ = 'Franklin Chou'
 
 import os
 import re
+import boto3
+import unicodedata
 import timeout_decorator
 
-from app import db
+from app import db,\
+    app
+
 from app.config import raw_data_path
 from app.models import Article as Article_Entry
+from botocore.exceptions import ClientError
 
 from datetime import date,\
-    datetime
+    datetime,\
+    timedelta
 
 from sqlalchemy.exc import IntegrityError
 
@@ -80,7 +86,6 @@ class Article:
     # retrieve pdf & store to file
     @timeout_decorator.timeout(10)
     def extract(self):
-
         doc_options = {
             'page-size': 'Letter',
             'margin-top': '0.5in',
@@ -122,8 +127,12 @@ class Article:
 
                 # once the entry is flushed to database, the ID should be available
                 db.session.flush()
-                self.dest_file = os.path.join(self.dest_path, "{}.pdf".format(a.id))
+
+                target_name = "{}.pdf".format(a.id)
+
+                self.dest_file = os.path.join(self.dest_path, target_name)
                 a.raw_url = self.dest_file
+                a.target_name = target_name
 
                 db.session.commit()
             except IntegrityError:
@@ -139,7 +148,7 @@ class Article:
 # Exposed function allow articles to be extracted from site
 #   and pushes article metadata into the database.
 @celery.task(name='horse.retrieve')
-def retrieve():
+def retrieve(first_call=False):
     source = lxml.html.parse(base_url)
 
     # docinfo = source.docinfo
@@ -159,6 +168,68 @@ def retrieve():
             continue
         except AttributeError:
             continue
+
+    if first_call == True:
+        upload_all()
+
+# Walk through the __database__ and store all non-stored files to AWS
+@celery.task(name='horse.upload_all')
+def upload_all():
+
+    last_seven_days = datetime.utcnow() - timedelta(days=7)
+
+    # Retrieve non-uploaded files from the dbase, om nom nom.
+    upload_queue = Article_Entry.query.filter(
+        (Article_Entry.uploaded == False),
+        (Article_Entry.publish_date > last_seven_days)
+    )
+
+    # Open a cxn.
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=app.config.get('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=app.config.get('AWS_SECRET_KEY')
+    )
+
+    bucket = app.config.get('S3_BUCKET')
+
+    if not bucket:
+        raise ValueError("Bucket name cannot be `None`")
+
+    try:
+        s3.head_bucket(Bucket=bucket)
+    except ClientError as e:
+        if int(e.response['Error']['Code']) == 404:
+            s3.create_bucket(Bucket=bucket)
+        else:
+            raise
+
+    for article in upload_queue:
+        headline_ascii = article.headline.encode('ascii', 'ignore').decode()
+
+        target_metadata = {
+            'Headline': headline_ascii,
+            'PublishDate': article.publish_date.strftime("%Y-%m-%d"),
+        }
+        try:
+            s3.put_object(
+                ACL='public-read',
+                Body=article.raw_url,
+                Bucket=bucket,
+                Key=article.target_name,
+                Metadata=target_metadata
+            )
+        except Exception as e:
+            print(e)
+
+        try:
+            article.uploaded = True
+
+            aws_base_url = 'https://s3.amazonaws.com/breitbot-asset'
+            article.aws_url = "{}/{}".format(aws_base_url, article.target_name)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
 
 if __name__ == "__main__":
     retrieve()

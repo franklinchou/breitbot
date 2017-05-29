@@ -47,7 +47,7 @@ venv/
 dep/
 
 # raw data files
-app/static/raw/
+static/raw/*
 
 # celery/redis (queueing files)
 var/celery/*

@@ -5,23 +5,36 @@ from flask_script import Manager,\
 from flask_migrate import Migrate,\
     MigrateCommand
 
-from app import app, db
+from app.models import Article
 
-from app.jobs.horse import retrieve
+from app import app,\
+    db,\
+    __init__
 
-migrate = Migrate(app, db)
+from app.jobs.horse import retrieve,\
+    upload_all
+
 manager = Manager(app)
-
-manager.add_command('db', MigrateCommand)
+migrate = Migrate(app, db)
 
 class Retrieve(Command):
-    "run retrieve subroutine"
+    "Run retrieve subroutine"
 
     def run(self):
-        retrieve()
+        retrieve(first_call=True)
 
+class Upload(Command):
+    """
+    Run upload subroutine, and  provides S3 management tools
+    """
 
+    def run(self):
+        upload_all()
+
+manager.add_command('db', MigrateCommand)
 manager.add_command('retrieve', Retrieve)
+manager.add_command('upload', Upload)
 
 if __name__ == '__main__':
     manager.run()
+    app.__init__()

@@ -32,6 +32,4 @@ def __init__():
         os.makedirs(config.raw_data_path, exist_ok=True)
 
     # create initial articles listing
-    retrieve()
-
-__init__()
+    retrieve(first_call=True)

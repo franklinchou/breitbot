@@ -1,26 +1,34 @@
-from app import app
-
 from flask import render_template,\
     send_from_directory
 
-from sqlalchemy import desc
+from datetime import datetime,\
+    timedelta
 
+from app import app
 from app.models import Article
-
 from app.config import raw_data_path
+
+from sqlalchemy import desc
 
 @app.route('/')
 def home():
 
-    # Display only 50 articles from the query
+    # Display the last week's worth of articles
     # @TODO use fixed page? to dynamically load all articles to page
+
+
+    last_seven_days = datetime.utcnow() - timedelta(days=7)
+
     article_list = []
     try:
-        selected_articles = Article.query.filter(Article.headline != None).order_by(desc(Article.publish_date)).limit(50)
+        selected_articles = Article.query.filter(
+            Article.publish_date > last_seven_days).order_by(desc(Article.publish_date)
+        )
+
         for article in selected_articles:
             article_dict = {
                 'ID': article.id,
-                'URL': article.raw_url,
+                'URL': article.aws_url,
                 'Headline': article.headline,
                 'PublishDate': article.publish_date
             }
