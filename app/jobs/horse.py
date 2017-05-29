@@ -46,7 +46,8 @@ import pdfkit
 # celery
 #------------------------------------------------------------------------------
 from celery import Celery
-celery = Celery(__name__, broker='redis://localhost:6379/0')
+# celery = Celery(__name__, broker='redis://localhost:6379/0')
+celery = Celery(__name__, broker=app.config.get('REDIS_URL'))
 celery.config_from_object('app.celery_config')
 #------------------------------------------------------------------------------
 
