@@ -17,6 +17,11 @@ from app.jobs.horse import retrieve,\
 manager = Manager(app)
 migrate = Migrate(app, db)
 
+@manager.command
+def runserver():
+    __init__()
+    app.run()
+
 class Retrieve(Command):
     "Run retrieve subroutine"
 
@@ -37,4 +42,3 @@ manager.add_command('upload', Upload)
 
 if __name__ == '__main__':
     manager.run()
-    app.__init__()

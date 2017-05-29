@@ -33,3 +33,5 @@ def __init__():
 
     # create initial articles listing
     retrieve(first_call=True)
+
+    print(" * Initial retrieval complete, ready to serve requests")
