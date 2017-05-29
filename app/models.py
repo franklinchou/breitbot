@@ -18,7 +18,7 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     target_name = db.Column(db.String(), unique=True)
     raw_url = db.Column(db.String(), unique=True)
-    headline = db.Column(db.String())
+    headline = db.Column(db.String(), unique=True)
 
     # publication date
     publish_date = db.Column(db.Date())

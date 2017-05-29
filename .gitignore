@@ -49,6 +49,7 @@ dep/
 
 # raw data files
 static/raw/*
+raw/*
 
 # celery/redis (queueing files)
 var/celery/*

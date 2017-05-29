@@ -150,7 +150,11 @@ class Article:
 #   and pushes article metadata into the database.
 @celery.task(name='horse.retrieve')
 def retrieve(first_call=False):
-    source = lxml.html.parse(base_url)
+    try:
+        source = lxml.html.parse(base_url)
+    except OSError:
+        # @TODO: If there's a failure to get the website, requeue the task
+        pass
 
     # docinfo = source.docinfo
     # assert(docinfo.encoding == 'UTF-8')
@@ -179,7 +183,7 @@ def upload_all():
 
     last_seven_days = datetime.utcnow() - timedelta(days=7)
 
-    # Retrieve non-uploaded files from the dbase, om nom nom.
+    # Retrieve non-uploaded files from the dbase
     upload_queue = Article_Entry.query.filter(
         (Article_Entry.uploaded == False),
         (Article_Entry.publish_date > last_seven_days)
@@ -212,16 +216,21 @@ def upload_all():
             'Headline': headline_ascii,
             'PublishDate': article.publish_date.strftime("%Y-%m-%d"),
         }
-        try:
-            s3.put_object(
-                ACL='public-read',
-                Body=article.raw_url,
-                Bucket=bucket,
-                Key=article.target_name,
-                Metadata=target_metadata
-            )
-        except Exception as e:
-            print(e)
+
+        # Feed the bytes to the s3 upload, om nom nom.
+        with open(article.raw_url, 'rb') as fp:
+            data = fp.read()
+
+            try:
+                s3.put_object(
+                    ACL='public-read',
+                    Body=data,
+                    Bucket=bucket,
+                    Key=article.target_name,
+                    Metadata=target_metadata
+                )
+            except Exception as e:
+                print(e)
 
         try:
             article.uploaded = True
