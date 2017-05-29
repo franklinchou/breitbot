@@ -23,8 +23,6 @@ from app.jobs.horse import retrieve
 from app import views
 #------------------------------------------------------------------------------
 
-_prepare()
-
 def _prepare():
 
     # Create raw data path
@@ -34,3 +32,5 @@ def _prepare():
     # retrieve()
 
     # print(" * Initial retrieval complete, ready to serve requests")
+
+_prepare()
