@@ -2,9 +2,6 @@ import os
 
 from app.config import raw_data_path
 
-if not os.path.exists(raw_data_path):
-    os.makedirs(raw_data_path, exist_ok=True)
-
 # FLASK
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -26,6 +23,14 @@ from app.jobs.horse import retrieve
 from app import views
 #------------------------------------------------------------------------------
 
-retrieve()
+_prepare()
 
-print(" * Initial retrieval complete, ready to serve requests")
+def _prepare():
+
+    # Create raw data path
+    if not os.path.exists(raw_data_path):
+        os.makedirs(raw_data_path, exist_ok=True)
+
+    # retrieve()
+
+    # print(" * Initial retrieval complete, ready to serve requests")
