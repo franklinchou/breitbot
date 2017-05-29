@@ -35,3 +35,6 @@ def __init__():
     retrieve(first_call=True)
 
     print(" * Initial retrieval complete, ready to serve requests")
+
+if os.environ.get('ENV').strip('\'') == 'prod':
+    __init__()
