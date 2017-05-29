@@ -2,11 +2,13 @@
 
 import os
 
-if os.environ['ENV'].strip('\'') == 'dev':
+ENV = os.environ['ENV'].strip('\'')
+
+if ENV == 'dev':
     DEBUG = True
     basepath = os.path.dirname(os.path.dirname(__file__))
 
-if os.environ['ENV'].strip('\'') == 'prod':
+if ENV == 'prod':
     basepath = os.path.expanduser("~")
 
 raw_data_path = os.path.join(basepath, 'raw')

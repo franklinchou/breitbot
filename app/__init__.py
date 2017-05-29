@@ -26,6 +26,6 @@ from app.jobs.horse import retrieve
 from app import views
 #------------------------------------------------------------------------------
 
-retrieve(first_call=True)
+retrieve()
 
 print(" * Initial retrieval complete, ready to serve requests")

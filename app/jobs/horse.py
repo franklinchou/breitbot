@@ -115,6 +115,7 @@ class Article:
     # Returns true if the article already exists in the dbase, take no further action;
     #   Else returns false, flag for extraction
     def db_check_exist_and_push(self):
+
         is_exist = db.session.query(Article_Entry).filter_by(headline=self.headline).first()
 
         # Add entry to database, retrieve ID, then use ID to name pdf
