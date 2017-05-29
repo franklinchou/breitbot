@@ -7,13 +7,9 @@ if os.environ['ENV'].strip('\'') == 'dev':
     basepath = os.path.dirname(os.path.dirname(__file__))
 
 if os.environ['ENV'].strip('\'') == 'prod':
-    from os.path import expanduser
-    basepath = expanduser("~")
+    basepath = os.path.expanduser("~")
 
 raw_data_path = os.path.join(basepath, 'raw')
-
-if not os.path.exists(raw_data_path):
-    os.makedirs(raw_data_path, exist_ok=True)
 
 SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL'].strip('\'')
 
