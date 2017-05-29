@@ -22,7 +22,9 @@ def home():
     article_list = []
     try:
         selected_articles = Article.query.filter(
-            Article.publish_date > last_seven_days).order_by(desc(Article.publish_date)
+            (Article.publish_date > last_seven_days),
+            (Article.uploaded == True)
+            ).order_by(desc(Article.publish_date)
         )
 
         for article in selected_articles:
