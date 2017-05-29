@@ -1,4 +1,4 @@
-import horse
+import os
 
 from app.config import raw_data_path
 
