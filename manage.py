@@ -36,5 +36,9 @@ manager.add_command('db', MigrateCommand)
 manager.add_command('retrieve', Retrieve)
 manager.add_command('upload', Upload)
 
-if __name__ == '__main__':
+def run_server():
+    app.__init__()
     manager.run()
+
+if __name__ == '__main__':
+    run_server()
