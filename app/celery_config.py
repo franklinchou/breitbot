@@ -9,7 +9,8 @@ timezone = 'UTC'
 
 beat_schedule = {
     'run-every-hour': {
-        'task': chord('horse.retrieve', 'horse.upload_all'),
+        # 'task': chord('horse.retrieve', 'horse.upload_all'),
+        'task': 'horse.retrieve',
         'schedule': crontab(hour='*/1', minute=0)
     },
 }
