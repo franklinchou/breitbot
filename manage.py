@@ -37,7 +37,7 @@ manager.add_command('retrieve', Retrieve)
 manager.add_command('upload', Upload)
 
 def run_server():
-    app.__init__()
+    __init__()
     manager.run()
 
 if __name__ == '__main__':

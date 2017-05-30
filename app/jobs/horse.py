@@ -40,7 +40,7 @@ from lxml import etree
 #------------------------------------------------------------------------------
 # pdf generation imports
 #------------------------------------------------------------------------------
-import pdfkit
+# import pdfkit
 
 #------------------------------------------------------------------------------
 # celery
@@ -102,11 +102,12 @@ class Article:
 
         try:
             # here is where UTF-8 compatibility __should__ be checked
-            pdfkit.from_url(
-                base_url + self.article_url,
-                self.dest_file,
-                doc_options
-            )
+            # pdfkit.from_url(
+            #    base_url + self.article_url,
+            #    self.dest_file,
+            #    doc_options
+            # )
+            pass
         except IOError as e:
             print(e)
         except Exception as e:
