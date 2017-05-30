@@ -29,6 +29,6 @@ def __init__():
     if not os.path.exists(raw_data_path):
         os.makedirs(raw_data_path, exist_ok=True)
 
-    # retrieve()
+    retrieve(first_call=True)
 
     # print(" * Initial retrieval complete, ready to serve requests")
