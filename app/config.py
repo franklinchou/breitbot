@@ -10,7 +10,7 @@ if ENV == 'dev':
 if ENV == 'prod':
     base_path = os.path.expanduser("~")
     bin_path = os.path.join(base_path, 'bin')
-    engine = os.path.join(binpath, 'wkhtmltopdf')
+    engine = os.path.join(bin_path, 'wkhtmltopdf')
     if os.path.isfile(engine):
         print(" >>> WKHTMLTOPDF ENGINE DETECTED")
         PDF_ENGINE = engine
