@@ -24,7 +24,6 @@ from app import views
 #------------------------------------------------------------------------------
 
 def __init__():
-
     if app.config['ENV'] == 'stage':
         # Clear any existing articles, reset dbase sequence counter to 1
         try:
