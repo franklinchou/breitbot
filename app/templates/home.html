@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+
+{% block body %}
+
+<div class="content">
+  <table>
+    {% for a in articles %}
+      <tr>
+        <td id="date"> * {{ a['PublishDate'] }} </td>
+        <td><a href="{{ a['URL']  }}">{{ a['Headline'] }}</a></td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}
