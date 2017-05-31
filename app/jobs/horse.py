@@ -15,7 +15,6 @@ __author__ = 'Franklin Chou'
 import os
 import re
 import boto3
-import unicodedata
 import timeout_decorator
 
 from app import db,\
@@ -166,7 +165,7 @@ class Article:
             'PublishDate': self.pub_date.strftime("%Y-%m-%d")
         }
         if not self.pdf_output:
-            raise ValueError("Cannot upload file to bucket if binary string is empty.")
+            raise ValueError("Cannot upload file to bucket if binary output is empty.")
         try:
             s3.put_object(
                     ACL = 'public-read',
