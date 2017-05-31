@@ -197,7 +197,9 @@ def retrieve():
         source = lxml.html.parse(base_url)
     except OSError:
         # @TODO: If there's a failure to get the website, requeue the task
-        pass
+        raise
+    except:
+        raise
 
     # docinfo = source.docinfo
     # assert(docinfo.encoding == 'UTF-8')
