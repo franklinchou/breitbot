@@ -78,8 +78,8 @@ class Article:
         else:
             raise AttributeError("No publication headline found, object not created.")
 
-        self.dest_file = ""
-        self.dest_path = raw_data_path
+        # self.dest_file = ""
+        # self.dest_path = raw_data_path
         self.pdf_output = None
 
     def push_to_breitbot(self):
@@ -129,10 +129,12 @@ class Article:
 
         try:
             # Set output to false, allows pdf output to be stored as variable
+            pdfkit_config = pdfkit.configuration(wkhtmltopdf=app.config.get('PDF_ENGINE'))
             self.pdf_output = pdfkit.from_url(
                 base_url + self.article_url,
                 False,
-                doc_options
+                doc_options,
+                configuration = pdfkit_config
             )
         except IOError as e:
             print(e)

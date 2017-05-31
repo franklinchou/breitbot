@@ -6,12 +6,14 @@ ENV = os.environ['ENV'].strip('\'')
 
 if ENV == 'dev':
     DEBUG = True
-    basepath = os.path.dirname(os.path.dirname(__file__))
 
 if ENV == 'prod':
-    basepath = os.path.expanduser("~")
-
-raw_data_path = os.path.join(basepath, 'raw')
+    base_path = os.path.expanduser("~")
+    bin_path = os.path.join(basepath, 'bin')
+    engine = os.path.join(binpath, 'wkhtmltopdf')
+    if os.path.isfile(engine):
+        print(" >>> WKHTMLTOPDF ENGINE DETECTED")
+        PDF_ENGINE = engine
 
 SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL'].strip('\'')
 
