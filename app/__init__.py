@@ -36,3 +36,6 @@ def __init__():
 
     retrieve()
     print(" * Initial retrieval complete, ready to serve requests")
+
+if app.config['ENV'] == 'prod':
+    __init__()
