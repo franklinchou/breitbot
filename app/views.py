@@ -6,7 +6,6 @@ from datetime import datetime,\
 
 from app import app
 from app.models import Article
-from app.config import raw_data_path
 
 from sqlalchemy import desc
 

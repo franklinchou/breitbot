@@ -1,6 +1,6 @@
 import os
 
-from app.config import raw_data_path
+from app import config
 
 # FLASK
 from flask import Flask

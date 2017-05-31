@@ -24,7 +24,6 @@ from app.celery_config import celery
 
 from .retry import retry
 
-from app.config import raw_data_path
 from app.models import Article as Article_Entry
 from botocore.exceptions import ClientError
 
