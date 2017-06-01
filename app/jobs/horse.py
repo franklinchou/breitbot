@@ -81,35 +81,6 @@ class Article:
         # self.dest_path = raw_data_path
         self.pdf_output = None
 
-    def push_to_breitbot(self):
-        is_exist = db.session.query(Article_Entry).filter(
-            (Article_Entry.headline==self.headline),
-            (Article_Entry.upload==True)).first()
-        if not is_exist:
-            session_object = Article_Entry(
-                    headline = self.headline,
-                    publish_date = self.pub_date.date()
-                )
-            try:
-                db.session.add(session_object)
-                db.session.flush()
-
-                self.target_name = "{}.pdf".format(session_object.id)
-                session_object.target_name = self.target_name
-
-                self._extract()
-                self._upload()
-                self._update(session_object)
-
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
-            except ClientError:
-                db.session.rollback()
-                raise ClientError
-        else:
-            raise FileExistsError
-
     # retrieve pdf & store to VARIABLE
     @timeout_decorator.timeout(10)
     def _extract(self):
@@ -136,9 +107,11 @@ class Article:
                 configuration = pdfkit_config
             )
         except IOError as e:
-            print(e)
+            raise
         except Exception as e:
-            print(e)
+            raise
+        except OSError as e:
+            raise
 
     @retry(ClientError, tries=3, delay=3, backoff=2)
     def _upload(self):
@@ -168,13 +141,14 @@ class Article:
         if not self.pdf_output:
             raise ValueError("Cannot upload file to bucket if binary output is empty.")
         try:
-            s3.put_object(
+            r = s3.put_object(
                     ACL = 'public-read',
                     Body = self.pdf_output,
                     Bucket = bucket,
                     Key = self.target_name,
                     Metadata = target_metadata
                 )
+            assert(r['ResponseMetadata']['HTTPStatusCode'] == 200)
         except ClientError as e:
             raise
 
@@ -185,6 +159,40 @@ class Article:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
+
+    def push_to_breitbot(self):
+        try:
+            is_exist = db.session.query(Article_Entry).filter(
+                (Article_Entry.headline==self.headline),
+                (Article_Entry.uploaded==True)).first()
+        except:
+            raise
+
+        if not is_exist:
+            session_object = Article_Entry(
+                    headline = self.headline,
+                    publish_date = self.pub_date.date()
+                )
+            try:
+                db.session.add(session_object)
+                db.session.flush()
+
+                self.target_name = "{}.pdf".format(session_object.id)
+                session_object.target_name = self.target_name
+
+                self._extract()
+                self._upload()
+                self._update(session_object)
+
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+            except ClientError:
+                db.session.rollback()
+                raise ClientError
+        else:
+            raise FileExistsError
+
 
     def __repr__(self):
         return "* %s, %s" % (self.headline, self.pub_date.date())
@@ -208,6 +216,8 @@ def retrieve():
         "//div[@class='article-content']/h2[@class='title']/a"
     )
 
+    print(' * RETRIEVE: Found {} items; uploading . . .'.format(len(all_articles)))
+
     for raw_article_xml in all_articles:
         # pass the LXML.HTML element object
         try:
@@ -215,11 +225,14 @@ def retrieve():
             new_article.push_to_breitbot()
         except TimeoutError:
             continue
-        except AttributeError:
+        except AttributeError as e:
+            print(e)
             continue
-        except ClientError:
+        except ClientError as e:
+            print(e)
             continue
-        except FileExistsError:
+        except FileExistsError as e:
+            print(e)
             continue
 
 def upload_check():
