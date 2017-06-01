@@ -62,7 +62,6 @@ class Article:
         __raw_pub_date = re.search(r'(?<=/)(\d{4}/\d{2}/\d{2})', self.article_url)
 
         if __raw_pub_date is not None:
-
             year = re.search(r'^(\d{4})', __raw_pub_date.group(1)).group(1)
             month = re.search(r'(?<=/)(\d{2})(?=/)', __raw_pub_date.group(1)).group(1)
             day = re.search(r'(\d{2})$', __raw_pub_date.group(1)).group(1)
@@ -71,14 +70,11 @@ class Article:
         else:
             raise AttributeError("No publish date found, object not created.")
 
-
         if raw_article_xml.text is not None:
             self.headline = raw_article_xml.text
         else:
             raise AttributeError("No publication headline found, object not created.")
 
-        # self.dest_file = ""
-        # self.dest_path = raw_data_path
         self.pdf_output = None
 
     # retrieve pdf & store to VARIABLE
@@ -175,8 +171,10 @@ class Article:
                 )
             try:
                 db.session.add(session_object)
-                db.session.flush()
 
+                # Once the entry is flushed to the database, the unique id is exposed.
+                # Name upload using that id.
+                db.session.flush()
                 self.target_name = "{}.pdf".format(session_object.id)
                 session_object.target_name = self.target_name
 
@@ -192,7 +190,6 @@ class Article:
                 raise ClientError
         else:
             raise FileExistsError
-
 
     def __repr__(self):
         return "* %s, %s" % (self.headline, self.pub_date.date())

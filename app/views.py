@@ -15,7 +15,6 @@ def home():
     # Display the last week's worth of articles
     # @TODO use fixed page? to dynamically load all articles to page
 
-
     last_seven_days = datetime.utcnow() - timedelta(days=7)
 
     article_list = []
@@ -38,10 +37,6 @@ def home():
         print(e)
 
     return render_template('home.html', articles=article_list)
-
-@app.route('/raw/<filename>')
-def serve_file(filename):
-    return send_from_directory(raw_data_path, filename)
 
 @app.route('/about')
 def about():

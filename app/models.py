@@ -12,7 +12,6 @@ def aws_url_default(context):
         return None
 
 class Article(db.Model):
-
     __tablename__ = 'articles'
 
     id = db.Column(db.Integer, primary_key=True)

@@ -12,7 +12,7 @@ if ENV == 'prod':
     bin_path = os.path.join(base_path, 'bin')
     engine = os.path.join(bin_path, 'wkhtmltopdf')
     if os.path.isfile(engine):
-        print(" >>> WKHTMLTOPDF ENGINE DETECTED")
+        print(" * wkhtmltopdf engine detected at {}".format(engine))
         PDF_ENGINE = engine
 
 SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL'].strip('\'')

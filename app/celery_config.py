@@ -6,7 +6,7 @@ import os
 
 from celery import Celery
 
-from celery import chord
+# from celery import chord
 from celery.schedules import crontab
 
 celery = Celery(__name__, broker = os.environ.get('REDIS_URL').strip('\''))
